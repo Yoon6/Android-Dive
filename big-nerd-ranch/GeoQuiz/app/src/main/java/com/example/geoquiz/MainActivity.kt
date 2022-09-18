@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_asia, true)
     )
     private var currentIndex = 0
+    private var correctQuestion = BooleanArray(questionBank.size)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +34,6 @@ class MainActivity : AppCompatActivity() {
         previousButton = findViewById(R.id.previous_image_button)
         nextButton = findViewById(R.id.next_image_button)
         questionTextView = findViewById(R.id.question_text_view)
-
 
         trueButton.setOnClickListener {
             checkAnswer(true)
@@ -60,10 +60,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val question = questionBank[currentIndex]
+        val correctAnswer = questionBank[currentIndex].answer
 
-        val message = when (userAnswer) {
-            true -> R.string.correct_toast
+        val message = when (userAnswer == correctAnswer) {
+            true -> {
+                correctQuestion[currentIndex] = true
+                currentIndex = (currentIndex + 1) % questionBank.size
+                updateQuestion()
+                R.string.correct_toast
+            }
             false -> R.string.incorrect_toast
         }
 
@@ -73,5 +78,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId = questionBank[currentIndex].textResId
         questionTextView.setText(questionTextResId)
+        if (correctQuestion[currentIndex]) {
+            trueButton.isEnabled = false
+            falseButton.isEnabled = false
+        }
     }
 }
